@@ -4,6 +4,7 @@ import { Storage } from '@ionic/storage';
 import { environment } from '../../environments/environment';
 import { Usuario } from '../interfaces/interfaces';
 import { NavController } from '@ionic/angular';
+import { resolve } from 'url';
 
 const URL = environment.url;
 
@@ -13,7 +14,7 @@ const URL = environment.url;
 export class UsuarioService {
 
   token: string = null;
-  usuario: Usuario = {};
+  private usuario: Usuario = {};
 
   constructor(
     private http: HttpClient, 
@@ -59,6 +60,15 @@ export class UsuarioService {
     });
   }
 
+  getUsuario() {
+
+    if ( !this.usuario._id ) {
+      this.validarToken();
+    }
+
+    return {...this.usuario};
+  }
+
   async guardarToken( token: string ) {
     this.token = token;
     await this.storage.set('token', token);
@@ -89,6 +99,24 @@ export class UsuarioService {
             resolve(true);
           } else {
             this.navCtrl.navigateRoot('/login');
+            resolve(false);
+          }
+        });
+    });
+  }
+
+  actualizarUsuario( usuario: Usuario ) {
+    const headers = new HttpHeaders({
+      'x-token': this.token
+    });
+
+    return new Promise( resolve => {
+      this.http.post(`${URL}/user/update`, usuario, { headers })
+        .subscribe( resp => {
+          if ( resp['ok']) {
+            this.guardarToken( resp['token']);
+            resolve(true);
+          } else {
             resolve(false);
           }
         })
