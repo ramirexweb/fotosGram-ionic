@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 export class Tab2Page {
 
   tempImages: string[] = [];
+  cargandoGeo = false;
 
   post = {
     mensaje: '',
@@ -33,6 +34,18 @@ export class Tab2Page {
     };
 
     this.route.navigateByUrl('/main/tabs/tab1');
+  }
+
+  getGeo(){
+
+    if ( !this.post.posicion ) {
+      this.post.coords = null;
+      return;
+    }
+
+    this.cargandoGeo = true;
+
+    console.log(this.post);
   }
 
 }
